@@ -2,6 +2,7 @@
 
 {% block content %}
     <h4>Home</h4>
+    <p>Welcome, {{ current_user.first_name }} {{ current_user.last_name }}</p>
     <hr />
     <form action="{{ url_for('home') }}" method="POST" s>
         <div class="form-group">
@@ -10,9 +11,24 @@
                     <input name="body_text" class="form-control" type="text" placeholder="Your blog post here..." />
                 </div>
                 <div class="col-md-2">
-                    <input class="btn btn-info" type="submit" value="Post" />
+                    <input class="btn btn-info btn-block" type="submit" value="Post" />
                 </div>
             </div>
         </div>
     </form>
+    <hr />
+    <ul class="list-group">
+        {% for p in posts %}
+        <li class="list-group-item">
+            <p>{{ p.body }}</p>
+            <div>
+                <span>
+                    <cite>&mdash; {{ p.user.first_name }} {{ p.user.last_name }}</cite>
+                    <small class="float-right">{{ moment(p.created_on.real).fromNow() }}</small>
+                </span>
+
+            </div>
+        </li>
+        {% endfor %}
+    </ul>
 {% endblock content %}

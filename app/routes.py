@@ -1,7 +1,7 @@
 from app import app, db
 from flask import render_template, request, redirect, url_for, flash
 from app.models import Post, User
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, current_user
 
 # Testing - 
 # Development - 
@@ -9,15 +9,26 @@ from flask_login import login_user, logout_user
 
 # file-watcher
 
+# How to do routing in <framework>
+# How to create models using <framework>
+# How to do user authentication in <framework>
+
 @app.route('/', methods=['GET', 'POST'])
 def home():
+    # print("Current User:", current_user.is_authenticated)
+    # print("Current User:", current_user.is_active)
+    # print("Current User:", current_user.is_anonymous)
+    # print("Current User:", current_user.get_id())
     if request.method == 'POST':
-        p = Post(email='derekh@codingtemple.com', body=request.form.get('body_text'))
+        p = Post(email='derekh@codingtemple.com', body=request.form.get('body_text'), user_id=current_user.get_id())
         db.session.add(p)
         db.session.commit()
         flash('Blog post created successfully', 'info')
         return redirect(url_for('home'))
-    return render_template('index.html')
+    context = {
+        'posts': [p.to_dict() for p in Post.query.filter_by(user_id=current_user.get_id()).all()]
+    }
+    return render_template('index.html', **context)
 
 
 @app.route('/contact')
@@ -35,6 +46,12 @@ def blog():
         'posts': [p.to_dict() for p in Post.query.all()]
     }
     return render_template('blog.html', **context)
+
+@app.route('/logout')
+def logout():
+    logout_user()
+    flash('You have logged out successfully.', 'warning')
+    return redirect(url_for('login'))
 
 @app.route('/login', methods=['GET', 'POST'])
 def login():
