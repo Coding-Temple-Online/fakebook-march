@@ -55,6 +55,6 @@ def register():
         u = User()
         u.from_dict(request.form)
         u.save()
-        flash('Blog post created successfully', info)
+        flash('Blog post created successfully', 'info')
         return redirect(url_for('login'))
     return render_template('register.html')

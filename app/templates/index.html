@@ -3,17 +3,16 @@
 {% block content %}
     <h4>Home</h4>
     <hr />
-    <form class="form-inline" action="{{ url_for('home') }}" method="POST" s>
-        <div class="row">
-            <div class="col-md-10">
-                <div class="form-group">
+    <form action="{{ url_for('home') }}" method="POST" s>
+        <div class="form-group">
+            <div class="row">
+                <div class="col-md-10">
                     <input name="body_text" class="form-control" type="text" placeholder="Your blog post here..." />
                 </div>
-            </div>
-            <div class="col-md-2">
-                <input class="btn btn-info" type="submit" value="Post" />
+                <div class="col-md-2">
+                    <input class="btn btn-info" type="submit" value="Post" />
+                </div>
             </div>
         </div>
-        <!-- <button type="submit">Post</button> -->
     </form>
 {% endblock content %}
