@@ -13,6 +13,9 @@ class User(UserMixin, db.Model):
     created_on = db.Column(db.DateTime, default=dt.utcnow)
     posts = db.relationship('Post', backref='user', lazy='dynamic')
 
+    def set_email(self):
+        self.email = f"{self.first_name}{self.last_name[0]}@codingtemple.com".lower()
+
     def save(self):
         self.set_password(self.password)
         db.session.add(self)

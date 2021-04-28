@@ -4,7 +4,7 @@
     <h4>Home</h4>
     <p>Welcome, {{ current_user.first_name }} {{ current_user.last_name }}</p>
     <hr />
-    <form action="{{ url_for('home') }}" method="POST" s>
+    <form action="{{ url_for('main.home') }}" method="POST" s>
         <div class="form-group">
             <div class="row">
                 <div class="col-md-10">

@@ -34,3 +34,25 @@ def blog():
         'posts': [p.to_dict() for p in Post.query.all()]
     }
     return render_template('blog.html', **context)
+
+@main.route('/profile', methods=['GET', 'POST'])
+def profile():
+    if request.method == 'POST':
+        user = User.query.get(current_user.id)
+        if user is not None:
+            user.first_name = request.form.get('first_name')
+            user.last_name = request.form.get('last_name')
+            user.set_email()
+
+
+            if request.form.get('password') and request.form.get('confirm_password') and request.form.get('password') == request.form.get('confirm_password'):
+                user.password = request.form.get('password')
+            elif not request.form.get('password') and not request.form.get('confirm_password'):
+                pass
+            else:
+                flash('There was an issue updating your information. Please try again.', 'warning')
+                return redirect(url_for('main.profile'))
+            db.session.commit()
+            flash('User updated successfully', 'success')
+            return redirect(url_for('main.profile'))
+    return render_template('profile.html')
