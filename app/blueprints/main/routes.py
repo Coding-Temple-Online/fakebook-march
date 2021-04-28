@@ -8,15 +8,33 @@ from flask_login import login_user, logout_user, current_user
 @main.route('/', methods=['GET', 'POST'])
 def home():
     if request.method == 'POST':
-        p = Post(email='derekh@codingtemple.com', body=request.form.get('body_text'), user_id=current_user.get_id())
+        p = Post(body=request.form.get('body_text'), user_id=current_user.get_id())
         db.session.add(p)
         db.session.commit()
         flash('Blog post created successfully', 'info')
-        return redirect(url_for('main.home'))
+        return redirect(url_for('stuff.home'))
     context = {
-        'posts': [p.to_dict() for p in Post.query.filter_by(user_id=current_user.get_id()).all()]
+        'posts': current_user.followed_posts().all()
     }
     return render_template('index.html', **context)
+
+@main.route('/explore')
+def explore():
+    return render_template('explore.html', users=[u for u in User.query.all() if u.id != current_user.id])
+
+@main.route('/unfollow')
+def unfollow():
+    u = User.query.get(request.args.get('user_id'))
+    current_user.unfollow(u)
+    flash(f'You have unfollowed {u.first_name} {u.last_name} [{u.email}]', 'secondary')
+    return redirect(url_for('main.explore'))
+
+@main.route('/follow')
+def follow():
+    u = User.query.get(request.args.get('user_id'))
+    current_user.follow(u)
+    flash(f'You have followed {u.first_name} {u.last_name} [{u.email}]', 'success')
+    return redirect(url_for('main.explore'))
 
 
 @main.route('/contact')
