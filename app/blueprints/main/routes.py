@@ -3,9 +3,10 @@ from flask import render_template, request, redirect, url_for, flash
 from app.blueprints.main import bp as main
 from app.models import Post
 from app.blueprints.authentication.models import User
-from flask_login import login_user, logout_user, current_user
+from flask_login import login_user, logout_user, current_user, login_required
 
 @main.route('/', methods=['GET', 'POST'])
+@login_required
 def home():
     if request.method == 'POST':
         p = Post(body=request.form.get('body_text'), user_id=current_user.get_id())
@@ -19,10 +20,12 @@ def home():
     return render_template('index.html', **context)
 
 @main.route('/explore')
+@login_required
 def explore():
     return render_template('explore.html', users=[u for u in User.query.all() if u.id != current_user.id])
 
 @main.route('/unfollow')
+@login_required
 def unfollow():
     u = User.query.get(request.args.get('user_id'))
     current_user.unfollow(u)
@@ -30,6 +33,7 @@ def unfollow():
     return redirect(url_for('main.explore'))
 
 @main.route('/follow')
+@login_required
 def follow():
     u = User.query.get(request.args.get('user_id'))
     current_user.follow(u)
@@ -46,14 +50,8 @@ def contact():
     }
     return render_template('contact.html', **context)
 
-@main.route('/blog')
-def blog():
-    context = {
-        'posts': [p.to_dict() for p in Post.query.all()]
-    }
-    return render_template('blog.html', **context)
-
 @main.route('/profile', methods=['GET', 'POST'])
+@login_required
 def profile():
     if request.method == 'POST':
         user = User.query.get(current_user.id)

@@ -1,9 +1,10 @@
-from flask_login import login_user, logout_user
+from flask_login import login_user, logout_user, login_required
 from flask import flash, redirect, url_for, render_template, request
 from app.blueprints.authentication.models import User
 from .import bp as auth
 
 @auth.route('/logout')
+@login_required
 def logout():
     logout_user()
     flash('You have logged out successfully.', 'warning')

@@ -20,8 +20,13 @@ def create_app(config_class=Config):
 
     db.init_app(app)
     migrate.init_app(app, db)
-    login_manager.init_app(app)
     moment.init_app(app)
+
+    login_manager.init_app(app)
+    login_manager.login_view = 'auth.login'
+    login_manager.login_message = 'You do not have access to this page. Please log in.'
+    login_manager.login_message_category = 'warning'
+
 
     from app.blueprints.authentication import bp as auth
     app.register_blueprint(auth)
@@ -31,4 +36,13 @@ def create_app(config_class=Config):
 
     from .import models
 
+    with app.app_context():
+        from .import context_processors
+        
+        from app.blueprints.shop import bp as shop
+        app.register_blueprint(shop)
+
+        from .import seed
+
+        
     return app
