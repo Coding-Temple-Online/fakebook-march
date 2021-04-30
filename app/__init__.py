@@ -27,6 +27,14 @@ def create_app(config_class=Config):
     login_manager.login_message = 'You do not have access to this page. Please log in.'
     login_manager.login_message_category = 'warning'
 
+    with app.app_context():
+        from .import context_processors
+        
+        from app.blueprints.shop import bp as shop
+        app.register_blueprint(shop)
+
+        from .import seed
+
 
     from app.blueprints.authentication import bp as auth
     app.register_blueprint(auth)
@@ -35,14 +43,6 @@ def create_app(config_class=Config):
     app.register_blueprint(main)
 
     from .import models
-
-    with app.app_context():
-        from .import context_processors
-        
-        from app.blueprints.shop import bp as shop
-        app.register_blueprint(shop)
-
-        from .import seed
 
         
     return app

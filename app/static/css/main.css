@@ -5,3 +5,7 @@
 header {
     margin-bottom: 35px;
 } 
+
+.cart-totals b {
+    width: 100px;
+}
