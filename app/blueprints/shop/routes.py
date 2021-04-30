@@ -4,11 +4,14 @@ import stripe
 from .models import Product, Cart, Order
 from app.seed import seed_data
 from flask_login import current_user
-from app.context_processors import build_cart
 import json
 from app import db
 
 stripe.api_key = app.config.get('STRIPE_SECRET_KEY')
+
+# @shop.app_context_processor
+# def get_cart():
+#     from app.context_processors import build_cart
 
 @shop.route('/seed')
 def seed():
@@ -37,6 +40,8 @@ def add_to_cart():
 
 @shop.route('/cart')
 def cart():
+    from app.context_processors import build_cart
+
     display_cart = build_cart()['cart_dict']
     
     session['session_display_cart'] = display_cart

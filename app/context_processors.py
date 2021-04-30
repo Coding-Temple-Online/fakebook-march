@@ -1,6 +1,6 @@
 from app.blueprints.shop.models import Cart, Product
 from flask_login import current_user
-from flask import current_app as app
+from flask import current_app as app, session
 from functools import reduce
 
 @app.context_processor
