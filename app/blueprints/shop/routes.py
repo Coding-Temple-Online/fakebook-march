@@ -4,7 +4,7 @@ import stripe
 from .models import Product, Cart, Order
 from app.seed import seed_data
 from flask_login import current_user
-import json
+import ast
 from app import db
 
 stripe.api_key = app.config.get('STRIPE_SECRET_KEY')
@@ -51,6 +51,37 @@ def cart():
     }
     return render_template('shop/cart.html', **context)
 
+@shop.route('/react/checkout', methods=['POST'])
+def checkout_react():
+    data = ast.literal_eval(request.get_data().decode('UTF-8'))
+    l_items = []
+    for product in data['items'].values():
+        # print(int(product['info']['price'] * 100))
+        product_dict = {
+            'price_data': {
+                'currency': 'usd',
+                'unit_amount': int(product['info']['price'] * 100),
+                'product_data': {
+                    'name': product['info']['name'],
+                    'images': [product['info']['image']],
+                },
+            },
+            'quantity': product['quantity'],
+        }
+        l_items.append(product_dict)
+    
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=l_items,
+            mode='payment',
+            success_url='/shop/success',
+            cancel_url='/shop/cancel',
+        )
+        return jsonify({'session_id': checkout_session.id})
+    except Exception as e:
+        return jsonify(error=str(e)), 403
+
 @shop.route('/checkout', methods=['POST'])
 def checkout():
     dc = session.get('session_display_cart')
@@ -74,8 +105,8 @@ def checkout():
             payment_method_types=['card'],
             line_items=l_items,
             mode='payment',
-            success_url=app.config.get('YOUR_DOMAIN') + '/shop/success',
-            cancel_url=app.config.get('YOUR_DOMAIN') + '/shop/cancel',
+            success_url='/shop/cart',
+            cancel_url='/shop/cart',
         )
         return jsonify({'session_id': checkout_session.id})
     except Exception as e:
