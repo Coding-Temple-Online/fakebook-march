@@ -1,9 +1,12 @@
-from datetime import datetime as dt
+from datetime import date, datetime as dt, timedelta
+
+from flask_migrate import current
 from app import db
 from flask_login import UserMixin
 from app import login_manager
 from werkzeug.security import check_password_hash, generate_password_hash
 from app.models import Post
+import os, base64
 
 followers = db.Table(
     'followers',
@@ -26,6 +29,31 @@ class User(UserMixin, db.Model):
         backref=db.backref('followers', lazy='dynamic'),
         lazy='dynamic'
     )
+    token = db.Column(db.String(32), index=True, unique=True)
+    token_expiration = db.Column(db.DateTime)
+
+    def get_token(self, expires=2000):
+        # Get the current timestamp
+        current_time = dt.utcnow()
+        # If the token exists and hasn't expired 
+        if self.token and self.token_expiration > current_time + timedelta(seconds=60):
+            # Return the token
+            return self.token
+        # Otherwise we will set the token attribute
+        self.token = base64.b64encode(os.urandom(24)).decode('utf-8')
+        self.token_expiration = current_time + timedelta(seconds=expires)
+        db.session.add(self)
+        return self.token
+
+    def delete_token(self):
+        self.token_expiration = dt.utcnow() - timedelta(seconds=1)
+
+    @staticmethod
+    def check_token(token):
+        user = User.query.filter_by(token=token).first()
+        if user is None or user.token_expiration < dt.utcnow():
+            return None
+        return user
 
     def followed_posts(self):
         followed = Post.query.join(

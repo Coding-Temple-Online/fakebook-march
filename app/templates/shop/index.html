@@ -15,7 +15,7 @@
                         </h6>
                     </div>
                     <div class="card-body">
-                        <img class="card-img-top" src="{{ url_for('static', filename='images/shoe.jpeg') }}" alt="{{ p.name }}">
+                        <img class="card-img-top" src="{{ p.image }}" alt="{{ p.name }}">
                         <a class="btn btn-success btn-block"  style="margin-top: 10px;" href="{{ url_for('shop.add_to_cart', product_id=p.id) }}">Add to cart</a>
                         <p class="card-text" style="margin-top: 10px;">{{ p.description }}</p>
                     </div>

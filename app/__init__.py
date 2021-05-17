@@ -42,6 +42,9 @@ def create_app(config_class=Config):
     from app.blueprints.main import bp as main
     app.register_blueprint(main)
 
+    from app.blueprints.api import bp as api
+    app.register_blueprint(api)
+
     from .import models
 
         

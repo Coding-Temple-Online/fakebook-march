@@ -13,7 +13,7 @@ def home():
         db.session.add(p)
         db.session.commit()
         flash('Blog post created successfully', 'info')
-        return redirect(url_for('stuff.home'))
+        return redirect(url_for('main.home'))
     context = {
         'posts': current_user.followed_posts().all()
     }

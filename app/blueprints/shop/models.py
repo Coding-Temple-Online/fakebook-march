@@ -19,6 +19,7 @@ class Product(db.Model):
         data = {
             'id': self.id,
             'name': self.name,
+            'image': self.image,
             'description': self.description,
             'price': self.price,
             'tax': self.tax,
