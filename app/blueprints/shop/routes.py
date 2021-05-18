@@ -1,4 +1,4 @@
-from flask import render_template, redirect, url_for, current_app as app, flash, request, session, jsonify
+from flask import json, render_template, redirect, url_for, current_app as app, flash, request, session, jsonify
 from . import bp as shop
 import stripe
 from .models import Product, Cart, Order
@@ -50,6 +50,36 @@ def cart():
         'cart': display_cart.values()
     }
     return render_template('shop/cart.html', **context)
+
+@shop.route('/react/checkout', methods=['POST'])
+def react_checkout():
+    data = ast.literal_eval(request.get_data().decode('utf-8'))
+    
+    l_items = []
+    for product in data['items'].values():
+        product_dict = {
+            'price_data': {
+                'currency': 'usd',
+                'unit_amount': int(float(product['info']['price'])) * 100,
+                'product_data': {
+                    'name': product['info']['name'],
+                    'images': [product['info']['image']],
+                },
+            },
+            'quantity': product['quantity'],
+        }
+        l_items.append(product_dict)
+    try:
+        checkout_session = stripe.checkout.Session.create(
+            payment_method_types=['card'],
+            line_items=l_items,
+            mode='payment',
+            success_url='http://localhost:3000/shop/cart',
+            cancel_url='http://localhost:3000/shop/cart',
+        )
+        return jsonify({'session_id': checkout_session.id})
+    except Exception as e:
+        return jsonify(error=str(e)), 403
 
 @shop.route('/checkout', methods=['POST'])
 def checkout():
